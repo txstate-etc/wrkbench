@@ -1,0 +1,84 @@
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "DNT": "1",
+    "Origin": "https://app_v2.tr.qual.txstate.edu",
+    "Authorization": "Bearer <app token here>"
+  },
+  "lists": {
+    "userids_staff_group": [
+        "{\"userids\":[\"aaa11\",\"bbb222\",\"c_c333\",\"ddd44\",\"ee55555\",\"ff66\"]}",
+        "{\"userids\":[\"gg11111\",\"hh22\",\"i_i333\",\"jj4444\",\"kk55\",\"ll66\"]}",
+        "{\"userids\":[\"mm11\",\"nn22\",\"oo33\",\"ppp44\",\"qq55\",\"r_r6\"]}",
+        "{\"userids\":[\"s11\",\"t_t222\",\"uuu333\",\"vv44\",\"ww5555\"]}"
+    ],
+    "userid_staff": [
+        "{\"userid\":[\"aaa11\"]}",
+        "{\"userid\":[\"bbb222\"]}",
+        "{\"userid\":[\"c_c333\"]}",
+        "{\"userid\":[\"ddd44\"]}",
+        "{\"userid\":[\"ee55555\"]}",
+        "{\"userid\":[\"ff66\"]}",
+        "{\"userid\":[\"i_i3333\"]}",
+        "{\"userid\":[\"jj4444\"]}",
+        "{\"userid\":[\"kk55\"]}",
+        "{\"userid\":[\"ll66\"]}",
+        "{\"userid\":[\"oo33\"]}",
+        "{\"userid\":[\"ppp44\"]}",
+        "{\"userid\":[\"qq55\"]}",
+        "{\"userid\":[\"r_r6\"]}",
+        "{\"userid\":[\"uuu333\"]}",
+        "{\"userid\":[\"vv44\"]}",
+        "{\"userid\":[\"ww5555\"]}"
+    ],
+    "userid_faculty": [
+        "{\"userid\":[\"xx111\"]}",
+        "{\"userid\":[\"yy22\"]}",
+        "{\"userid\":[\"zz333\"]}"
+    ]
+  },
+  "queries": [
+    {
+      "weight": 22.5,
+      "tag": "(1) app_v2: client-1: Validate a user with their userid",
+      "graph": "GetUserValid($userid:[StringCI!]) { users(filter:{ userids:$userid }) { userid canLogin }}",
+      "variables": "userid_staff" 
+    },
+    {
+      "weight": 26.9,
+      "tag": "(2) app_v2: client-1: Get a user affiliations for list of userids",
+      "graph": "GetUserAffiliations($userids:[StringCI!]) { users(filter:{ userids:$userids }) { userid institutionalRoles }}",
+      "variables": "userids_staff_group" 
+    },
+    {
+      "weight": 0.3,
+      "tag": "(3) app_v2: client-1: get faculty fullname with their userid",
+      "graph": "GetUserFullName($userid:[StringCI!]) { users(filter:{ userids:$userid }) { name { first: preferredFirstPlusMiddle last }}}",
+      "variables": "userid_faculty" 
+    },
+    {
+      "weight": 0.4,
+      "tag": "(4) app_v2: monitor-alert: get same user health check with single userid",
+      "graph": "MonitorAlertCheck($userid:[StringCI!]) { users(filter:{ userids:$userid }) { uNumber, ldapAccount { uNumber }}}",
+      "variables": [
+         "{\"userid\":[\"kk55\"]}"
+      ]
+    },
+    {
+      "weight": 0.5,
+      "tag": "(5) app_v2: client-2: get terms for do date ranges with array of start and end dates",
+      "graph": "GetTerms($endsAfter:Date, $startsBefore:Date) { terms (filter:{ endsAfter:$endsAfter, startsBefore:$startsBefore }) { code name startDate endDate }}",
+      "variables": [
+        "{\"endsAfter\":20210901,\"startsBefore\":20211231}",
+        "{\"endsAfter\":20210601,\"startsBefore\":20210731}",
+        "{\"endsAfter\":20210201,\"startsBefore\":20210430}"
+      ]
+    },
+    {
+      "weight": 0,
+      "tag": "(6) app_v2: client-3: get users by adGroups",
+      "graph": "users(filter:{ adGroups:[\\\"UG-IT-Staff\\\",\\\"UG-IT-StudentEmployees\\\",\\\"APP-client3-Managers\\\"] }) { userid name { preferred } ldapAccount { email } adGroups (filter:{ names:[\\\"UG-ISO-Staff\\\",\\\"UG-ADA-Staff\\\",\\\"UG-IT-Staff\\\",\\\"UG-VPIT-Staff\\\"] }) { name } isITStaff:adGroupsIsMember(groups:[\\\"UG-IT-Staff\\\"]) isAdmin:adGroupsIsMember(groups:[\\\"APP-client3-Managers\\\"])}"
+    }
+  ]
+}
