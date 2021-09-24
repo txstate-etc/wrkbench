@@ -118,7 +118,7 @@ Hiccups in a system are generally not load based (OS scheduling, OS swap space, 
 - Always track max time. This is a good indicator that standard deviation is suspect. Max time is the number 1 warning sign that something in the report may be off, such as when the benchmark is affected by a coordinated omission problem. Note people have the tendency to throw the max time away when they can give valuable insight into the system and have an impact on the application SLA as surpassing the max worse case.
 
 ## Coordinated omission problem:
-The coordinated omission problem is where we are omitting data because of response times are longer than request interval, and as such the tooliong backs off on requests.
+The coordinated omission problem is where we are omitting data because our response times are taking longer than request interval, and as such the tooling backs off on requests.
 Example of common approach:
 1) Client issues requests one by one at a certain rate.
 2) Measure and log response time for each request
