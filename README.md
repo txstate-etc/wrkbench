@@ -1,6 +1,8 @@
 # wrkbench
 Scripting Benchmark Tool
 
+This is a repo to build wrk2 and run benchmarks on services. Included in the readme is a collection of material about load testing we have found useful from different sites throughout the web to help understand benchmarking best practices.
+
 ## How to build example:
 ```bash
 REGISTRY=https://registry.dept.example.com/
@@ -31,6 +33,31 @@ docker run --rm \
 ```
 
 A bench_example.sh script is included as a guide. Also `scripts/graphql.lua` and `data/queries.example.json` are included to get started with graphql benchmarking. The arguments passed to the script would be the index to the queries to run and the data json formated file that will include the queries, token keys, and variable lists to use for the queries.
+
+While benchmarking monitor resources on the host being tested.
+```bash
+# Watch CPU %idle column for drops with mpstat command set for every 2 seconds
+mpstat 2
+Linux ... ... (2 CPU)
+
+10:27:44 AM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+10:27:46 AM  all    0.25    0.00    0.25    0.00    0.00    0.00    0.00    0.00    0.00   99.50
+...
+10:27:54 AM  all    2.51    0.00    0.75    0.00    0.00    0.25    0.00    0.00    0.00   96.48
+10:27:56 AM  all   32.75    0.00    2.77    0.00    0.00    0.00    0.00    0.00    0.00   64.48
+10:27:58 AM  all   44.72    0.00    5.03    0.25    0.00    0.25    0.00    0.00    0.00   49.75
+10:28:00 AM  all   41.35    0.00    3.26    0.00    0.00    0.25    0.00    0.00    0.00   55.14
+10:28:02 AM  all    8.33    0.00    1.52    0.00    0.00    0.25    0.00    0.00    0.00   89.90
+10:28:04 AM  all   37.44    0.00    5.03    0.00    0.00    0.25    0.00    0.00    0.00   57.29
+10:28:06 AM  all   63.91    0.00    2.51    0.00    0.00    0.00    0.00    0.00    0.00   33.58
+...
+
+# Watch available memory column for drops with free command
+free -h
+              total        used        free      shared  buff/cache   available
+Mem:           3.7G        816M        376M        183M        2.5G        2.4G
+Swap:          1.0G        256K        1.0G
+```
 
 ## Benchmarking Tips:
 _This is taken from wg/wrk github repo_:
@@ -135,12 +162,12 @@ What can go wrong with this technique?:
 - wrk2 utilizes Histrograms and has improved precision over wrk and automatically compensates for the coordinated omission problem, thus giving more a acurate report.
 
 Histrograms are good at measuring percentiles and we want to capture as many as we can. This gives a better picture of how our systems are performing.
-A good opensource tool to do this with is: High Dynamic Range Histogram (HdrHistrogram)
+A good opensource tool to do this with is: High Dynamic Range Histogram (HdrHistrogram):
 - Covers a configurable dynamic range value (which is what you need to measure in percentiles)
 - At configurable precision (expressed as a number of significant digits)
 - Provides tools for iteration (Linear, Logarithmic, Percentile)
 
-Example:
+Examples of what HdrHistrogram can do:
 - Can track values between 1us and 1hr
 - With 3 decimal points of resolution
 - Built in compensation for Coordinated Omission if you tell it the interval where you expect to see results.
